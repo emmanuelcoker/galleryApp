@@ -1,0 +1,109 @@
+<template>
+  <div
+    @drag.prevent.stop=""
+    @dragstart.prevent.stop=""
+    @dragenter.prevent.stop="is_dragover = true"
+    @dragover.prevent.stop="is_dragover = true"
+    @dragleave.prevent.stop="is_dragover = false"
+    @dragend.prevent.stop="is_dragover = false"
+    @drop.prevent.stop="upload($event)"
+    class="w-full px-10 py-20 h-[15rem] rounded text-center cursor-pointer border border-dashed border-gray-400 text-gray-400 transition duration-500 hover:text-white hover:bg-green-400 hover:border-green-400 hover:border-solid"
+    :class="{ 'bg-green-400 border-green-400 border-solid': is_dragover }"
+  >
+    <p class="my-auto">Drag and Drop Files Here</p>
+  </div>
+  <div v-for="upload in uploads" class="mb-4" :key="upload.name">
+    <!-- File Name -->
+    <div class="font-bold text-sm" :class="upload.text_class">
+      <i :class="upload.icon"></i>
+      {{ upload.name }}
+    </div>
+    <div class="flex h-4 overflow-hidden bg-gray-200 rounded">
+      <!-- Inner Progress Bar -->
+      <div
+        class="transition-all progress-bar bg-blue-400"
+        :class="upload.variant"
+        :style="{ width: upload.curr_progress + '%' }"
+      ></div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { auth, storage, imageCollection } from "@/includes/firebase";
+export default {
+  name: "UploadView",
+  components: {},
+  data() {
+    return {
+      is_dragover: false,
+      uploads: [],
+    };
+  },
+  methods: {
+    upload($event) {
+      this.is_dragover = false;
+      const files = [...$event.dataTransfer.files];
+
+      files.forEach((file) => {
+        //verify the file type on client side
+        // if (file.type !== "image/jpg" || file.type !== "image/png") {
+        //   return;
+        // }
+
+        //create a storage reference
+        const storageRef = storage.ref();
+
+        //create the image folder in the the db
+        const imagesRef = storageRef.child(`images/${file.name}`);
+
+        const task = imagesRef.put(file);
+
+        const uploadIndex =
+          this.uploads.push({
+            task,
+            curr_progress: 0,
+            name: file.name,
+            variant: "bg-blue-400",
+            icon: "fas fa-spinner fa-spin",
+            text_class: "",
+          }) - 1;
+
+        task.on(
+          "state_changed",
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            this.uploads[uploadIndex].curr_progress = progress;
+          },
+          (error) => {
+            this.uploads[uploadIndex].variant = "bg-red-400";
+            this.uploads[uploadIndex].icon = "fas fa-times";
+            this.uploads[uploadIndex].text_class = "text-red-400";
+            console.log(error);
+          },
+          async () => {
+            const image = {
+              uid: auth.currentUser.uid,
+              display_name: auth.currentUser.displayName,
+              original_name: task.snapshot.ref.name,
+              modified_name: task.snapshot.ref.name,
+            };
+
+            //add image download url
+            image.url = await task.snapshot.ref.getDownloadURL();
+            await imageCollection.add(image);
+
+            this.uploads[uploadIndex].variant = "bg-green-400";
+            this.uploads[uploadIndex].icon = "fas fa-check";
+            this.uploads[uploadIndex].text_class = "text-green-400";
+          }
+        );
+      });
+      // console.log(files);
+    },
+  },
+};
+</script>
+
+<style></style>
