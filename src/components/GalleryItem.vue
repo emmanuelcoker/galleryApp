@@ -20,11 +20,18 @@
         >
           <div class="mt-auto flex flex-row justify-between items-center">
             <span
-              class="test__tag bg-white cursor-pointer bg-opacity-60 w-auto py-1 px-2 sm:py-1 sm:px-2 rounded-md text-black mr-2"
-              ><i class="fa fa-heart cursor-pointer"></i
+              @click.stop.prevent="addToFavourite(image)"
+              class="test__tag bg-white cursor-pointer z-10 bg-opacity-60 w-auto py-1 px-2 sm:py-1 sm:px-2 rounded-md text-black mr-2"
+              ><i
+                class="fa fa-heart cursor-pointer"
+                :class="{ 'text-red-600': likeStatus }"
+                :style="{
+                  color: image.text_color,
+                }"
+              ></i
             ></span>
             <span
-              class="test__tag bg-white cursor-pointer bg-opacity-60 w-auto flex flex-row justify-between items-center px-2 py-2 sm:py-2 sm:px-2 rounded-md text-black"
+              class="test__tag bg-white cursor-pointer z-10 bg-opacity-60 w-auto flex flex-row justify-between items-center px-2 py-2 sm:py-2 sm:px-2 rounded-md text-black"
               ><i class="fa fa-plus cursor-pointer"></i
             ></span>
           </div>
@@ -53,6 +60,8 @@
 </template>
 
 <script>
+import { auth, favouritesCollection } from "@/includes/firebase";
+
 export default {
   name: "GalleryItem",
   props: {
@@ -64,7 +73,24 @@ export default {
   data() {
     return {
       tagVisibility: false,
+      likeStatus: false,
     };
+  },
+  methods: {
+    async addToFavourite(image) {
+      try {
+        const imageToUpload = {
+          ...image,
+          uid: auth.currentUser.uid,
+          text_color: "red",
+        };
+        await favouritesCollection.add(imageToUpload);
+        this.likeStatus = true;
+      } catch (error) {
+        this.likeStatus = false;
+        console.log(error);
+      }
+    },
   },
 };
 </script>

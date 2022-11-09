@@ -85,13 +85,14 @@ export default {
           async () => {
             const image = {
               uid: auth.currentUser.uid,
-              display_name: auth.currentUser.displayName,
+              author: auth.currentUser.displayName,
               original_name: task.snapshot.ref.name,
               modified_name: task.snapshot.ref.name,
+              likes: 0,
             };
 
             //add image download url
-            image.url = await task.snapshot.ref.getDownloadURL();
+            image.image_url = await task.snapshot.ref.getDownloadURL();
             await imageCollection.add(image);
 
             this.uploads[uploadIndex].variant = "bg-green-400";

@@ -22,5 +22,13 @@ const storage = firebase.storage();
 //create a collection for users
 const userCollection = db.collection("users");
 const imageCollection = db.collection("images");
+const favouritesCollection = db.collection("favourites");
 
-export { auth, db, userCollection, storage, imageCollection };
+export {
+  auth,
+  db,
+  userCollection,
+  storage,
+  imageCollection,
+  favouritesCollection,
+};
