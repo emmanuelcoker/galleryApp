@@ -69,7 +69,7 @@ const routes = [
     },
   },
   {
-    path: "/show-image",
+    path: "/show-image/:id",
     name: "show-image",
     component: ShowImage,
   },

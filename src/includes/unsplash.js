@@ -23,6 +23,12 @@ const photos_configuration = {
   getUrl: () => {
     return photos_configuration.urlWithAccessKey(configuration.photo_url);
   },
+
+  search: (id) => {
+    return (
+      configuration.photo_url + id + "?client_id=" + configuration.access_key
+    );
+  },
 };
 
 export { photos_configuration, configuration };
