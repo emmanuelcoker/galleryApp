@@ -21,6 +21,7 @@
           <div class="mt-auto flex flex-row justify-between items-center">
             <span
               @click.stop.prevent="addToFavourite(image)"
+              :disabled="image.text_color === 'red'"
               class="test__tag bg-white cursor-pointer z-10 bg-opacity-60 w-auto py-1 px-2 sm:py-1 sm:px-2 rounded-md text-black mr-2"
               ><i
                 class="fa fa-heart cursor-pointer"
@@ -60,7 +61,8 @@
 </template>
 
 <script>
-import { auth, favouritesCollection } from "@/includes/firebase";
+import { mapActions, mapWritableState } from "pinia";
+import useImageStore from "@/stores/image";
 
 export default {
   name: "GalleryItem",
@@ -77,19 +79,9 @@ export default {
     };
   },
   methods: {
+    ...mapActions(useImageStore, ["addFavourite"]),
     async addToFavourite(image) {
-      try {
-        const imageToUpload = {
-          ...image,
-          uid: auth.currentUser.uid,
-          text_color: "red",
-        };
-        await favouritesCollection.add(imageToUpload);
-        this.likeStatus = true;
-      } catch (error) {
-        this.likeStatus = false;
-        console.log(error);
-      }
+      await this.addFavourite(image);
     },
   },
 };

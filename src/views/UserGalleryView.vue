@@ -62,12 +62,10 @@
     >
   </div>
 
-  <keep-alive>
-    <home-gallery
-      :images="favourites"
-      :handleImage="handleFavourites"
-    ></home-gallery>
-  </keep-alive>
+  <home-gallery
+    :images="favourites"
+    :handleImage="handleFavourites"
+  ></home-gallery>
 
   <div class="w-full flex flex-col justify-center align-items-center py-7">
     <p
@@ -81,15 +79,13 @@
     >
   </div>
 
-  <keep-alive>
-    <home-gallery :images="images" :handleImage="handleImage"></home-gallery>
-  </keep-alive>
+  <home-gallery :images="images" :handleImage="handleImage"></home-gallery>
 </template>
 
 <script>
 import HomeGallery from "../components/HomeGallery.vue";
 import WallTemplate from "../components/WallTemplate.vue";
-import { mapActions } from "pinia";
+import { mapActions, mapWritableState } from "pinia";
 import { configuration } from "@/includes/unsplash";
 import useImageStore from "@/stores/image";
 
@@ -101,8 +97,6 @@ export default {
   },
   data() {
     return {
-      favourites: [],
-      images: [],
       show_per_page: 10,
       pending_requests: false,
       current_page: 1,
@@ -123,12 +117,21 @@ export default {
         configuration.page = this.current_page;
       }
 
-      const imageSnapshots = await this.getImage();
-      imageSnapshots.forEach((item) => {
-        this.images.push(item);
-      });
+      await this.getImage();
 
       this.pending_requests = false;
+    },
+
+    handleScroll() {
+      const { scrollTop, offsetHeight } = document.documentElement;
+      const { innerHeight } = window;
+
+      let top = Math.round(scrollTop) + innerHeight;
+      let percentage = (top / offsetHeight) * 100;
+
+      if (percentage > 80 && percentage < 90) {
+        this.handleImage();
+      }
     },
 
     async handleFavourites() {
@@ -139,13 +142,17 @@ export default {
       if (this.favourites.length) {
         this.pending_requests = true;
       }
-      const snapshots = await this.getFavourites();
-      snapshots.forEach((item) => {
-        this.favourites.push(item);
-      });
+      await this.getFavourites();
+      // snapshots.forEach((item) => {
+      //   this.favourites.push(item);
+      // });
 
       this.pending_requests = false;
     },
+  },
+
+  computed: {
+    ...mapWritableState(useImageStore, ["images", "favourites"]),
   },
 };
 </script>

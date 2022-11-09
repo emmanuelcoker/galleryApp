@@ -11,30 +11,28 @@
       >Checkout new pictures uploaded around the world</span
     >
   </div>
-  <keep-alive>
-    <home-gallery :images="images" :handleImage="handleImage"></home-gallery>
-  </keep-alive>
+
+  <home-gallery :images="images" :handleImage="handleImage"></home-gallery>
 </template>
 
 <script>
 import AppWallBanner from "@/components/AppWallBanner.vue";
 import HomeGallery from "@/components/HomeGallery.vue";
 import { configuration } from "@/includes/unsplash";
-import { mapActions } from "pinia";
+import { mapActions, mapWritableState } from "pinia";
 import useImageStore from "@/stores/image";
 
 export default {
   name: "HomeView",
   data() {
     return {
-      images: [],
       show_per_page: 10,
       pending_requests: false,
       current_page: 1,
     };
   },
   methods: {
-    ...mapActions(useImageStore, ["getImage"]),
+    ...mapActions(useImageStore, ["getImage", "handleScroll"]),
     async handleImage() {
       if (this.pending_requests) {
         return;
@@ -47,11 +45,7 @@ export default {
       } else {
         configuration.page = this.current_page;
       }
-      const imageSnapshots = await this.getImage();
-      imageSnapshots.forEach((item) => {
-        this.images.push(item);
-      });
-
+      await this.getImage();
       this.pending_requests = false;
       // console.log(this.images);
     },
@@ -66,6 +60,9 @@ export default {
         this.handleImage();
       }
     },
+  },
+  computed: {
+    ...mapWritableState(useImageStore, ["getImage", "images"]),
   },
   components: {
     AppWallBanner,

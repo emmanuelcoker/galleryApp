@@ -10,17 +10,11 @@ export default defineStore("image", {
   actions: {
     async getImage() {
       let snapshots;
-      let images = [];
 
       snapshots = await fetch(`${photos_configuration.getUrl()}`).then(
         (response) => response.json()
       );
 
-      //get all user favourites if logged in
-      let favourites;
-      if (auth.currentUser) {
-        favourites = await this.getFavourites();
-      }
       snapshots.forEach((item) => {
         let image = {
           id: item.id,
@@ -31,26 +25,20 @@ export default defineStore("image", {
           color: item.color,
           liked_by_user: item.liked_by_user,
           author: item.user.first_name,
-          text_color: "black",
         };
 
-        favourites.forEach((fav) => {
-          if (fav.id === item.id) {
-            image.text_color = "red";
-            return;
-          }
-        });
+        if (this.favourites.find((fav) => fav.id == item.id)) {
+          image.text_color = "red";
+        } else {
+          image.text_color = "black";
+        }
 
-        images.push(image);
+        this.images.push(image);
       });
-
-      return images;
     },
 
     async getFavourites() {
       let snapshots;
-      let images = [];
-
       snapshots = await favouritesCollection
         .where("uid", "==", auth.currentUser.uid)
         .get();
@@ -58,12 +46,38 @@ export default defineStore("image", {
       snapshots.forEach((document) => {
         const image = {
           ...document.data(),
-          text_color: "text-white",
+          text_color: "red",
           docID: document.id,
         };
-        images.push(image);
+
+        this.favourites.push(image);
       });
-      return images;
+    },
+
+    async addFavourite(image) {
+      try {
+        const imageToUpload = {
+          ...image,
+          uid: auth.currentUser.uid,
+          text_color: "red",
+        };
+
+        //push to the list if only the image doesnt already exist
+
+        if (this.favourites.find((fav) => fav.id === imageToUpload.id)) {
+          return;
+        }
+        await favouritesCollection.add(imageToUpload);
+        this.favourites.push(imageToUpload);
+        //update the value of the item in the image list
+        let objIndex = this.images.findIndex(
+          (fav) => fav.id == imageToUpload.id
+        );
+
+        this.images[objIndex].text_color = "red";
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
 });

@@ -1,18 +1,18 @@
 <template>
   <div class="columns-2 md:columns-3 lg:columns-4">
-    <keep-alive>
-      <gallery-item
-        class="cursor-pointer"
-        v-for="image in images"
-        :key="image.id"
-        :image="image"
-      ></gallery-item>
-    </keep-alive>
+    <gallery-item
+      class="cursor-pointer"
+      v-for="image in images"
+      :key="image.id"
+      :image="image"
+    ></gallery-item>
   </div>
 </template>
 
 <script>
 import GalleryItem from "@/components/GalleryItem.vue";
+import useImageStore from "@/stores/image";
+import { mapWritableState } from "pinia";
 
 export default {
   name: "HomeGallery",
@@ -32,8 +32,13 @@ export default {
     return {};
   },
   methods: {},
+  computed: {
+    ...mapWritableState(useImageStore, ["images"]),
+  },
   created() {
-    this.handleImage();
+    if (this.images.length == 0) {
+      this.handleImage();
+    }
   },
 };
 </script>
