@@ -1,41 +1,23 @@
 <template>
   <div class="columns-2 md:columns-3 lg:columns-4">
-    <div
+    <gallery-item
+      class="cursor-pointer"
       v-for="image in images"
       :key="image.id"
-      class="relative mb-4 before:content-[''] before:rounded-md before:absolute before:inset-0 before:bg-black before:bg-opacity-20"
-    >
-      <img
-        class="w-full rounded-md"
-        :src="image.image_url"
-        :style="{
-          backgroundColor: image.color,
-        }"
-      />
-      <div class="test__body absolute inset-0 p-8 text-white flex flex-col">
-        <div class="relative">
-          <a class="test__link absolute inset-0" target="_blank" href="/"></a>
-          <h1 class="test__title text-3xl font-bold mb-3">
-            {{ image.description }}
-          </h1>
-          <p class="test__author font-sm font-light">{{ image.author }}</p>
-        </div>
-        <div class="mt-auto">
-          <span
-            class="test__tag bg-white bg-opacity-60 py-1 px-4 rounded-md text-black"
-            >{{ image.likes }}</span
-          >
-        </div>
-      </div>
-    </div>
+      :image="image"
+    ></gallery-item>
   </div>
 </template>
 
 <script>
 import { photos_configuration, configuration } from "@/includes/unsplash";
+import GalleryItem from "@/components/GalleryItem.vue";
 
 export default {
   name: "HomeGallery",
+  components: {
+    GalleryItem,
+  },
   data() {
     return {
       show: "",
