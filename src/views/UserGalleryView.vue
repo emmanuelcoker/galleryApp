@@ -50,7 +50,10 @@
     </template>
   </wall-template>
 
-  <div class="w-full flex flex-col justify-center align-items-center py-7">
+  <div
+    v-show="favourites.length > 0"
+    class="w-full flex flex-col justify-center align-items-center py-7"
+  >
     <p
       class="mx-auto text-2xl font-bold sm:text-4xl font-sans text-gray-900 text-center"
     >

@@ -39,13 +39,23 @@
       >Checkout new pictures uploaded around the world</span
     >
   </div>
+
+  <home-gallery
+    :images="uploadedImages"
+    :handleImage="handleImage"
+  ></home-gallery>
 </template>
 
 <script>
 import { auth, storage, imageCollection } from "@/includes/firebase";
+import { mapActions, mapWritableState } from "pinia";
+import useImageStore from "@/stores/image";
+import HomeGallery from "../components/HomeGallery.vue";
 export default {
   name: "UploadView",
-  components: {},
+  components: {
+    HomeGallery,
+  },
   data() {
     return {
       is_dragover: false,
@@ -53,6 +63,11 @@ export default {
     };
   },
   methods: {
+    ...mapActions(useImageStore, ["getUploadedImages"]),
+    async handleImage() {
+      await this.getUploadedImages();
+    },
+
     upload($event) {
       this.is_dragover = false;
       const files = [...$event.dataTransfer.files];
@@ -105,7 +120,13 @@ export default {
 
             //add image download url
             image.image_url = await task.snapshot.ref.getDownloadURL();
-            await imageCollection.add(image);
+            //get image
+
+            let imgRef = await imageCollection.doc();
+            let imgDetails = { ...image, id: imgRef.id };
+            imgRef.set(imgDetails);
+
+            this.uploadedImages.push(imgDetails);
 
             this.uploads[uploadIndex].variant = "bg-green-400";
             this.uploads[uploadIndex].icon = "fas fa-check";
@@ -115,6 +136,9 @@ export default {
       });
       // console.log(files);
     },
+  },
+  computed: {
+    ...mapWritableState(useImageStore, ["uploadedImages"]),
   },
 };
 </script>

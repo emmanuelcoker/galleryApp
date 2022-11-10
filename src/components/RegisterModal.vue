@@ -161,6 +161,7 @@
                   <div class="text-sm">
                     <a
                       href="#"
+                      @click.prevent="toggleModal"
                       class="font-medium text-indigo-600 hover:text-indigo-500"
                       >Have an account? Sign In</a
                     >
@@ -225,6 +226,12 @@ export default {
       errorMessage: "",
     };
   },
+  computed: {
+    ...mapWritableState(useModalStore, {
+      registerModalVisibility: "registerModal",
+      loginModalVisiblity: "loginModal",
+    }),
+  },
   methods: {
     ...mapActions(useUserStore, {
       createUser: "register",
@@ -244,11 +251,10 @@ export default {
 
       console.log(values);
     },
-  },
-  computed: {
-    ...mapWritableState(useModalStore, {
-      registerModalVisibility: "registerModal",
-    }),
+    toggleModal() {
+      this.registerModalVisibility = !this.registerModalVisibility;
+      this.loginModalVisibility = !this.loginModalVisibility;
+    },
   },
 };
 </script>

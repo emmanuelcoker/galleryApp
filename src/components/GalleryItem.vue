@@ -62,7 +62,9 @@
 
 <script>
 import { mapActions, mapWritableState } from "pinia";
+import { auth } from "@/includes/firebase";
 import useImageStore from "@/stores/image";
+import useModalStore from "@/stores/modal";
 
 export default {
   name: "GalleryItem",
@@ -81,8 +83,18 @@ export default {
   methods: {
     ...mapActions(useImageStore, ["addFavourite"]),
     async addToFavourite(image) {
+      if (!auth.currentUser) {
+        this.modalVisibility = true;
+        return;
+      }
       await this.addFavourite(image);
     },
+  },
+
+  computed: {
+    ...mapWritableState(useModalStore, {
+      modalVisibility: "registerModal",
+    }),
   },
 };
 </script>

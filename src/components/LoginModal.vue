@@ -126,6 +126,14 @@
                       class="font-medium text-indigo-600 hover:text-indigo-500"
                       >Forgot your password?</a
                     >
+
+                    <a
+                      href="#"
+                      class="font-medium text-indigo-600 hover:text-indigo-500"
+                      @click.prevent="toggleModal"
+                    >
+                      Register Now!</a
+                    >
                   </div>
                 </div>
 
@@ -187,6 +195,7 @@ export default {
   computed: {
     ...mapWritableState(useModalStore, {
       loginModalVisibility: "loginModal",
+      registerModalVisibility: "registerModal",
     }),
   },
   methods: {
@@ -202,6 +211,11 @@ export default {
         this.errorMessage = error.message;
         this.loaderVisibility = false;
       }
+    },
+
+    toggleModal() {
+      this.registerModalVisibility = !this.registerModalVisibility;
+      this.loginModalVisibility = !this.loginModalVisibility;
     },
   },
 };

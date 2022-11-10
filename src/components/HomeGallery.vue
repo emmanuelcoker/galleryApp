@@ -1,11 +1,14 @@
 <template>
   <div class="columns-2 md:columns-3 lg:columns-4">
-    <gallery-item
+    <keep-alive>
+      <gallery-item
       class="cursor-pointer"
       v-for="image in images"
       :key="image.id"
       :image="image"
     ></gallery-item>
+    </keep-alive>
+    
   </div>
 </template>
 

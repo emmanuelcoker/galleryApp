@@ -1,11 +1,16 @@
 import { defineStore } from "pinia";
 import { photos_configuration } from "@/includes/unsplash";
-import { auth, favouritesCollection } from "@/includes/firebase";
+import {
+  auth,
+  favouritesCollection,
+  imageCollection,
+} from "@/includes/firebase";
 
 export default defineStore("image", {
   state: () => ({
     images: [],
     favourites: [],
+    uploadedImages: [],
   }),
   actions: {
     async getImage() {
@@ -63,11 +68,18 @@ export default defineStore("image", {
         };
 
         //push to the list if only the image doesnt already exist
-
         if (this.favourites.find((fav) => fav.id === imageToUpload.id)) {
+          await favouritesCollection.doc(imageToUpload.docID).delete();
+
+          let objIndex = this.favourites.findIndex(
+            (fav) => fav.id == imageToUpload.id
+          );
+          this.favourites.splice(objIndex, 1);
           return;
         }
-        await favouritesCollection.add(imageToUpload);
+
+        let imageToAdd = await favouritesCollection.doc();
+        imageToAdd.set({ ...imageToUpload, docID: imageToAdd.id });
         this.favourites.push(imageToUpload);
         //update the value of the item in the image list
         let objIndex = this.images.findIndex(
@@ -75,6 +87,26 @@ export default defineStore("image", {
         );
 
         this.images[objIndex].text_color = "red";
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    async getUploadedImages() {
+      try {
+        let snapshots;
+        snapshots = await imageCollection
+          .where("uid", "==", auth.currentUser.uid)
+          .get();
+
+        snapshots.forEach((document) => {
+          const image = {
+            ...document.data(),
+            text_color: "red",
+            docID: document.id,
+          };
+          this.uploadedImages.push(image);
+        });
       } catch (error) {
         console.log(error);
       }
