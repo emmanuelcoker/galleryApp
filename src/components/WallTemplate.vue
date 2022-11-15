@@ -10,11 +10,16 @@
 
       <div class="w-full text-center">
         <vee-form
+          id="searchform"
+          :validation-schema="schema"
+          @submit="searchContent"
           class="outline-0 border-0 flex justify-center align-items-center"
         >
           <div class="relative w-full max-w-4xl">
             <slot name="search-field"></slot>
-            <slot name="search-icon"></slot>
+            <button type="submit">
+              <slot name="search-icon"></slot>
+            </button>
           </div>
         </vee-form>
 
@@ -29,6 +34,19 @@
 <script>
 export default {
   name: "WallTemplate",
+  emits: ["search"],
+  data() {
+    return {
+      schema: {
+        search: "required",
+      },
+    };
+  },
+  methods: {
+    searchContent(values) {
+      this.$emit("search", values);
+    },
+  },
 };
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-  <wall-template>
+  <wall-template @search="search">
     <template v-slot:wallImg>
       <img
         src="@/assets/flowers.jpg"
@@ -30,17 +30,52 @@
     </template>
 
     <template v-slot:search-field>
-      <vee-field
-        name="search"
-        type="text"
-        class="p-4 px-5 mt-3 opacity-100 w-full text-gray-700 bg-white rounded-lg"
-        placeholder="Search images, vectors, videos and music"
-      />
+      <label
+        for="default-search"
+        class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-gray-300"
+        >Search</label
+      >
+      <div class="relative">
+        <div
+          class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none"
+        >
+          <svg
+            aria-hidden="true"
+            class="w-5 h-5 text-gray-500 dark:text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            ></path>
+          </svg>
+        </div>
+        <vee-field
+          type="search"
+          name="search"
+          id="default-search"
+          class="block p-4 pl-10 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="Search Mockups, Logos..."
+          required
+          autocomplete="off"
+        />
+        <button
+          type="submit"
+          class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        >
+          Search
+        </button>
+      </div>
     </template>
 
-    <template v-slot:search-icon>
+    <!-- <template v-slot:search-icon>
       <i class="absolute text-gray-600 top-7 right-5 fa fa-search text-xl"></i>
-    </template>
+    </template> -->
 
     <template v-slot:smaller-text>
       <p class="text-md md:text-lg text-gray-300 font-sans leading-5 mt-2">
@@ -82,7 +117,11 @@
     >
   </div>
 
-  <home-gallery :images="images" :handleImage="handleImage"></home-gallery>
+  <home-gallery
+    :images="images"
+    :handleImage="handleImage"
+    @discover-more="discoverMore"
+  ></home-gallery>
 </template>
 
 <script>
@@ -106,7 +145,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions(useImageStore, ["getFavourites", "getImage"]),
+    ...mapActions(useImageStore, ["getFavourites", "getImage", "searchImage"]),
     async handleImage() {
       if (this.pending_requests) {
         return;
@@ -125,16 +164,8 @@ export default {
       this.pending_requests = false;
     },
 
-    handleScroll() {
-      const { scrollTop, offsetHeight } = document.documentElement;
-      const { innerHeight } = window;
-
-      let top = Math.round(scrollTop) + innerHeight;
-      let percentage = (top / offsetHeight) * 100;
-
-      if (percentage > 80 && percentage < 90) {
-        this.handleImage();
-      }
+    discoverMore() {
+      this.handleImage();
     },
 
     async handleFavourites() {
@@ -146,11 +177,11 @@ export default {
         this.pending_requests = true;
       }
       await this.getFavourites();
-      // snapshots.forEach((item) => {
-      //   this.favourites.push(item);
-      // });
-
       this.pending_requests = false;
+    },
+    async search(value) {
+      await this.searchImage(value);
+      this.$router.push({ name: "search", params: { query: value.search } });
     },
   },
 

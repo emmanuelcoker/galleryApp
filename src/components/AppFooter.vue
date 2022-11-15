@@ -1,15 +1,5 @@
 <template>
   <div class="flex flex-col p-8 justify-content-center align-items-center mt-8">
-    <!--Discover button section-->
-    <div class="w-4/5 mx-auto md:max-w-72 mx-auto text-center mt-10">
-      <button
-        type="button"
-        class="bg-green-500 text-white rounded-2xl px-12 py-3 w-64"
-      >
-        Discover more
-      </button>
-    </div>
-
     <!--join pixabay-->
     <div class="w-4/5 mx-auto md:max-w-72 mt-20">
       <div

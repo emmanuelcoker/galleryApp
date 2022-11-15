@@ -11,15 +11,16 @@ export default defineStore("image", {
     images: [],
     favourites: [],
     uploadedImages: [],
+    searchContent: [],
+    search_val: "",
   }),
   actions: {
-    async getImage() {
-      let snapshots;
+    async getSnapshots(url) {
+      let snapshots = await fetch(`${url}`).then((response) => response.json());
+      return snapshots;
+    },
 
-      snapshots = await fetch(`${photos_configuration.getUrl()}`).then(
-        (response) => response.json()
-      );
-
+    organizeSnapshots(snapshots) {
       snapshots.forEach((item) => {
         let image = {
           id: item.id,
@@ -40,6 +41,13 @@ export default defineStore("image", {
 
         this.images.push(image);
       });
+    },
+    async getImage() {
+      let snapshots;
+      //get snapshots with url
+      snapshots = await this.getSnapshots(photos_configuration.getUrl());
+
+      this.organizeSnapshots(snapshots);
     },
 
     async getFavourites() {
@@ -110,6 +118,50 @@ export default defineStore("image", {
       } catch (error) {
         console.log(error);
       }
+    },
+
+    //search methods
+    organizeSearchSnapshots(snapshots) {
+      snapshots.results.forEach((item) => {
+        let image = {
+          id: item.id,
+          width: item.width,
+          height: item.height,
+          image_url: item.urls.full,
+          likes: item.likes,
+          color: item.color,
+          liked_by_user: item.liked_by_user,
+          author: item.user.first_name,
+        };
+
+        if (this.favourites.find((fav) => fav.id == item.id)) {
+          image.text_color = "red";
+        } else {
+          image.text_color = "black";
+        }
+
+        this.searchContent.push(image);
+      });
+    },
+
+    async searchImage(value) {
+      let snapshots;
+      snapshots = await this.getSnapshots(
+        photos_configuration.searchByQuery(value.search)
+      );
+      this.search_val = value.search;
+      this.searchContent = [];
+      this.organizeSearchSnapshots(snapshots);
+    },
+
+    async loadSearchContent(query) {
+      let snapshots;
+      //get snapshots with url
+      snapshots = await this.getSnapshots(
+        photos_configuration.searchByQuery(query)
+      );
+
+      this.organizeSearchSnapshots(snapshots);
     },
   },
 });

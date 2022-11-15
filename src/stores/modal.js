@@ -4,6 +4,8 @@ export default defineStore("modal", {
   state: () => ({
     loginModal: false,
     registerModal: false,
+    NavMainDropDown: false,
+    NavSubDropDown: false,
   }),
   getters: {
     hiddenLogin(state) {

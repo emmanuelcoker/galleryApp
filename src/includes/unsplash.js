@@ -5,6 +5,7 @@ const configuration = {
   per_page: 20,
   page: 1,
   photo_url: "https://api.unsplash.com/photos/",
+  search_url: "https://api.unsplash.com/search/photos",
 };
 
 const photos_configuration = {
@@ -23,10 +24,25 @@ const photos_configuration = {
   getUrl: () => {
     return photos_configuration.urlWithAccessKey(configuration.photo_url);
   },
-
+  //search by id
   search: (id) => {
     return (
       configuration.photo_url + id + "?client_id=" + configuration.access_key
+    );
+  },
+
+  //search by query
+  searchByQuery: (query) => {
+    return (
+      configuration.search_url +
+      "?client_id=" +
+      configuration.access_key +
+      "&query=" +
+      query +
+      "&page=" +
+      configuration.page +
+      "&per_page=" +
+      configuration.per_page
     );
   },
 };

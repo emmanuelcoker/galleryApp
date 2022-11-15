@@ -355,8 +355,6 @@ export default {
   name: "AppNav",
   data() {
     return {
-      mainDropDown: false,
-      subDropDown: false,
       navLinkStyles:
         "text-gray-800 hover:bg-blue-500 hover:text-white px-3 py-2 rounded-md text-sm font-medium",
     };
@@ -383,6 +381,8 @@ export default {
     ...mapWritableState(useModalStore, {
       loginModalVisibility: "loginModal",
       registerModalVisibility: "registerModal",
+      mainDropDown: "NavMainDropDown",
+      subDropDown: "NavSubDropDown",
     }),
     ...mapWritableState(useUserStore, ["userLoggedIn"]),
   },

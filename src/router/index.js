@@ -6,6 +6,7 @@ import ShowImage from "@/views/ShowImage.vue";
 import useUserStore from "@/stores/user";
 import AppPageNotFound from "@/views/AppPageNotFound.vue";
 import UploadView from "@/views/UploadView.vue";
+import SearchView from "@/views/SearchView.vue";
 import useModalStore from "@/stores/modal";
 
 const routes = [
@@ -25,6 +26,14 @@ const routes = [
     component: UserGallery,
     meta: {
       requiresAuth: true,
+    },
+  },
+  {
+    path: "/search/:query",
+    name: "search",
+    component: SearchView,
+    meta: {
+      requiresAuth: false,
     },
   },
   {
@@ -98,6 +107,8 @@ router.beforeEach((to, from, next) => {
   }
   const store = useUserStore();
   const modal = useModalStore();
+  modal.NavMainDropDown = false;
+  modal.NavSubDropDown = false;
   if (store.userLoggedIn) {
     next();
   } else {

@@ -12,7 +12,12 @@
     >
   </div>
 
-  <home-gallery :images="images" :handleImage="handleImage"></home-gallery>
+  <keep-alive>
+    <home-gallery
+      :images="searchContent"
+      :handleImage="handleImage"
+    ></home-gallery>
+  </keep-alive>
 </template>
 
 <script>
@@ -32,30 +37,41 @@ export default {
     };
   },
   methods: {
-    ...mapActions(useImageStore, ["getImage"]),
+    ...mapActions(useImageStore, ["loadSearchContent"]),
     async handleImage() {
       if (this.pending_requests) {
         return;
       }
 
-      if (this.images.length) {
+      if (this.searchContent.length > 0) {
         this.pending_requests = true;
         configuration.per_page = this.show_per_page;
         configuration.page = this.current_page++;
       } else {
         configuration.page = this.current_page;
       }
-      await this.getImage();
+
+      await this.loadSearchContent(this.search_val);
       this.pending_requests = false;
       // console.log(this.images);
     },
   },
   computed: {
-    ...mapWritableState(useImageStore, ["getImage", "images"]),
+    ...mapWritableState(useImageStore, [
+      "searchImage",
+      "searchContent",
+      "search_val",
+    ]),
   },
   components: {
     AppWallBanner,
     HomeGallery,
+  },
+
+  async created() {
+    if (this.searchContent == 0) {
+      await this.handleImage();
+    }
   },
 };
 </script>
